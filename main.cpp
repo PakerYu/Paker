@@ -1,95 +1,13 @@
-/*
- * @Description  : 
- * @Author       : Paker
- * @Time         : 2021-07-01 18:00:08
- * @LastEditTime : 2021-07-01 19:29:18
- * @FilePath     : \Snake\Code\main.cpp
- *     (C) Copyright 2021 Paker, China, GCU
- *              All Rights Reserved.
- * 
- *                 By (Paker)
- */
 
+#include "Snake2_1_0.h"
 
-#include <Windows.h>
-#include <stdlib.h>
-#include <time.h>
-#include <conio.h>
-#include <math.h>
-#include <graphics.h>
-#include <TChar.h>
-
-/****************************???????******************************/
-
-
-#define SIZE 100    //??????????
-#define Border 20   //???(??λ:????)
-#define xNet 30     //x?????????(0~29)
-#define yNet 30     //y?????????(0~29)
-#define gap 3       //??????????(??λ:????)
-#define EdgeLenth 20    //??????(????gap)    
-
-const int Width = xNet * EdgeLenth + 2 * Border;   //???????
-const int Height = yNet * EdgeLenth + 2 * Border;  //??????
-const int winWidth = Width + 200;	//???????
-
-int Drct = 3;         //??????????:0,1,2,3??????????????
-clock_t GameTime, FlashTime;
-long Timeing = CLOCKS_PER_SEC;
-
-boolean Alive = TRUE;       //?ж????????
-int Score;
-
-//???????
-struct FoodInfo
-{
-	int x;
-	int y;
-}food;
-
-//?????
-struct snakeInfo
-{
-	int length;
-	int x[SIZE];
-	int y[SIZE];
-}Snake;
-
-
-//??????????(????????????)
-struct Section
-{
-	int num;                //?????
-	int x;                  //???x????
-	int y;                  //???y????
-	int direction;          //??????????
-	struct Section* next;   //????????
-}left;      //left????????????????
-			//???????next?????left
-
-struct Section* head;       //???????
-
-int Section_Size = sizeof(struct Section);    //Section??????С,?????????????? 
-
-struct Button   //????????
-{
-	int x;
-	int y;
-	int width;
-	int height;
-	COLORREF color;
-	TCHAR* pText;
-};
 
 /********************************************************/
 
+/***************************函数*****************************/
 
 
-/***************************????*****************************/
-
-/***********?????************/
-
-//??????
+//生成按钮
 struct Button* createBT(int x, int y, int width, int height, COLORREF color, const TCHAR* text)
 {
 	struct Button* pB = (struct Button*)malloc(sizeof(struct Button));
@@ -101,7 +19,7 @@ struct Button* createBT(int x, int y, int width, int height, COLORREF color, con
 	pB->pText = (TCHAR*)malloc(_tcslen(text) + 1);
 	_tcscpy_s(pB->pText, _tcslen(text) + 1, text);
 
-	setcolor(color);
+	setbkcolor(color);
 	setbkmode(TRANSPARENT);
 	setfillcolor(color);
 	solidrectangle(x, y, x + width, y + height);
@@ -113,7 +31,7 @@ struct Button* createBT(int x, int y, int width, int height, COLORREF color, con
 	return pB;
 }
 
-//????????
+//按钮检测点击
 int clickBT(struct Button* bt, MOUSEMSG m)
 {
 	if (m.x > bt->x && m.x<bt->x + bt->width && m.y>bt->y && m.y < bt->y + bt->height)
@@ -134,92 +52,7 @@ void ClickCheck(int x, int y, int width, int height, const TCHAR* s, COLORREF co
 }
 
 
-//????????
-void initWin(int width, int height, COLORREF bkcolor)
-{
-	initgraph(width, height);
-	setbkcolor(bkcolor);
-	cleardevice();
-}
-
-//??????
-int toPixel(int Net)
-{
-	return Net * EdgeLenth + Border;
-}
-
-//??????????
-void SecPrint(struct Section* p, COLORREF color)
-{
-	setfillcolor(color);
-	solidrectangle(toPixel(p->x) + gap, toPixel(p->y) + gap, toPixel(p->x) + Border - gap, toPixel(p->y) + Border - gap);
-}
-
-//????????
-int EndScreen()
-{
-	setbkcolor(BLACK);
-	cleardevice();
-	TCHAR s[35];
-	_tcscpy_s(s, 35, _T("Your Final Score Is: "));
-	TCHAR n[10];
-	_itot(Score, n, 10);
-	n[9] = _T('\0');
-	_tcscat_s(s, 45, n);
-	setbkmode(1);
-	settextcolor(WHITE);
-	settextstyle(25, 0, _T("Consolas"));
-	outtextxy((winWidth - textwidth(s)) / 2, (Height - textheight(s)) / 2, s);
-
-	ClickCheck(winWidth / 2 - 60, Height / 2 + 40, 120, 40, _T("Restart"), WHITE);
-	return 1;
-}
-
-void ShowTitle()
-{
-	const TCHAR* s = _T("SNAKE");
-
-	settextcolor(WHITE);
-	settextstyle(50, 0, _T("Consolas"));
-	outtextxy((winWidth - textwidth(s)) / 2, 60, s);
-}
-
-void Showversion()
-{
-	const TCHAR* s = _T("v2.0.1");
-	settextcolor(WHITE);
-	settextstyle(20, 0, _T("Consolas"));
-	outtextxy((winWidth - textwidth(s)) / 2, 120, s);
-}
-
-void ShowRules()
-{
-	const TCHAR* s1= _T("Each step earns 1 point.");
-	const TCHAR* s2= _T("Food earns 10 points.");
-
-	settextcolor(WHITE);
-	settextstyle(23, 0, _T("Consolas"));
-	outtextxy((winWidth - textwidth(s1)) / 2, (Height - textheight(s1)) / 2 + 30, s1);
-	outtextxy((winWidth - textwidth(s2)) / 2, (Height - textheight(s2)) / 2 + 50, s2);
-}
-
-//??????????
-void PrintMap()
-{
-	setfillcolor(BLACK);
-	solidrectangle(Border, Border, Width - Border, Height - Border);
-}
-
-//???????
-void ScoreShow(int x)
-{
-	Score += x;
-	TCHAR s[10];
-	_itot(Score, s, 10);
-	outtextxy(Width + Border + (200 - textwidth(s)) / 2, (Height - textheight(s)) / 2, s);
-}
-
-//???????
+//生成食物
 void FoodCreate()
 {
 	int i;
@@ -227,47 +60,44 @@ void FoodCreate()
 	struct Section* p;
 	boolean sign = TRUE;
 
-	//???????
+	//清空原食物
 	setfillcolor(BLACK);
 	solidrectangle(toPixel(food.x), toPixel(food.y), toPixel(food.x) + EdgeLenth, toPixel(food.y) + EdgeLenth);
 
 	srand((int)time(NULL));
-
-	p = head;
 
 	i = 0;
 	do
 	{
 		a = rand() % (xNet - 1) + 1;
 		b = rand() % (yNet - 1) + 1;
-		if (i == Snake.length - 1)
-			sign = FALSE;
-		if (a == p->x || b == p->y)
+		
+		sign = FALSE;
+		p = head;
+		while (1)
 		{
-			sign = TRUE;
-		}
-		else
-		{
-			i++;
-			p = p->next;
+			if (p->x == a && p->y == b)
+			{
+				sign = TRUE;
+				break;
+			}
+			if (p->next == NULL)
+				break;
+
+			NextSection(p);
 		}
 	} while (sign);
 
 	food.x = a;
 	food.y = b;
 
-	//?????????????
+	//这里需要打印食物
 	setfillcolor(0xCCD5F0);
 	solidcircle(toPixel(a) + EdgeLenth / 2, toPixel(b) + EdgeLenth / 2, EdgeLenth / 2 - 4);
 }
 
-void PrintFood()
-{
-	setfillcolor(0xCCD5F0);
-	solidcircle(toPixel(food.x) + EdgeLenth / 2, toPixel(food.y) + EdgeLenth / 2, EdgeLenth / 2 - 2);
-}
 
-//????????
+//创建蛇身
 void CreateBody()
 {
 	struct Section* p;
@@ -276,148 +106,92 @@ void CreateBody()
 	w = (int)(xNet / 2);
 	h = (int)(yNet / 2);
 
-
-	//?????
+	//第一节
 	head = (Section*)malloc(Section_Size);
 	p = head;
-	p->num = 0; p->direction = 3; p->x = w; p->y = h;
+	p->pre = NULL;
+	p->num = 0; p->direction = RIGHT; p->x = w; p->y = h;
+	p->Gx = toPixel(p->x);
+	p->Gy = toPixel(p->y);
 	SecPrint(p, WHITE);
 
-	//?????
+	//第二节
 	p->next = (Section*)malloc(Section_Size);
-	p = p->next;
-	p->num = 1; p->direction = 3; p->x = w - 1; p->y = h;
+	p->next->pre = p;
+	NextSection(p);
+	p->num = 1; p->direction = RIGHT; p->x = w - 1; p->y = h;
+	p->Gx = toPixel(p->x);
+	p->Gy = toPixel(p->y);
 	SecPrint(p, WHITE);
 
-	//??????
+	//第三节
 	p->next = (Section*)malloc(Section_Size);
-	p = p->next;
-	p->num = 2; p->direction = 3; p->x = w - 2; p->y = h;
+	p->next->pre = p;
+	NextSection(p);
+	tail = p;
+	p->num = 2; p->direction = RIGHT; p->x = w - 2; p->y = h;
+	p->Gx = toPixel(p->x);
+	p->Gy = toPixel(p->y);
 	SecPrint(p, WHITE);
-
-
-	p->next = &left;
-
-	Snake.length = 3;
-	//left??
-	left.x = w - 3; left.y = h;
-	left.next = NULL; left.num = Snake.length;
-
-}
-
-//???????
-void GrowUp()
-{
-	struct Section* p;
-	p = head;
-
-	//???p??????β??
-	do
-	{
-		p = p->next;
-	} while (p->num != Snake.length - 1);
 
 	p->next = (struct Section*)malloc(Section_Size);
-	p = p->next;
-	*p = left;
-	p->next = &left;
-	p->num = Snake.length;
-	Snake.length++;
-	left.num = Snake.length;
+	left = p->next;
 
-	int count;
-	//???????
-	count = (Snake.length - 3);
-	Timeing = (long)(CLOCKS_PER_SEC / ((-pow(exp(1.0), -count / 14.0) + 1) * 2.5 + 1.25));
+	Snake.length = 3;
+	//left节
+	left->num = Snake.length;
+	left->direction = RIGHT;
+	left->x = w - 3; left->y = h;
+	left->Gx = NULL; left->Gy = NULL;
+	left->pre = p;
+	left->next = NULL; left->num = Snake.length;
 }
 
-//????????
-void RefreshSnake()
+
+//刷新蛇的状态
+int RefreshSnake()
 {
-	int i, dir, t;
-	boolean flag = FALSE;
-	static boolean sign = FALSE;       //sign?????????left??????
+	/*
+	* eaten_flag 用于记录是否吃到食物,
+	* 若吃到食物标记为 1
+	* 用于判断left节点是否需要移动
+	* 在下一次刷新后 left 节点移动, eaten_flag重置为 0
+	*/
+	static int eaten_flag = 0;
 
-	struct Section* p;
-	p = head;
-	dir = Drct;
-
-	for (i = 0; i <= Snake.length; i++)    //i=length?p??????left
+	if (eaten_flag)
 	{
-		if (p->num == Snake.length && sign)
-		{
-			sign = FALSE;
-			break;
-		}
-
-		t = p->direction;
-		p->direction = dir;
-		dir = t;                      //dir?????????????
-
-		//???????????????????  
-		switch (p->direction)
-		{
-		case 0: p->y -= 1; break;
-
-		case 1: p->y += 1; break;
-
-		case 2: p->x -= 1; break;
-
-		case 3: p->x += 1; break;
-		}
-
-		if (i != Snake.length)
-			p = p->next;
+		//吃到食物
+		
+		directInherit(tail);
+		coordinatesRefresh(tail);
+		eaten_flag = 0;
 	}
-
-	//??????????????
-	if (head->x == food.x && head->y == food.y)
-	{
-		sign = TRUE;
-		flag = TRUE;
-
-		//???????
-		GrowUp();
-		FoodCreate();
-		ScoreShow(10);
-	}
-
-	SecPrint(head, WHITE);
-	if (!flag)
-		SecPrint(&left, BLACK);
 	else
-		flag = FALSE;
-
-	//????????
-	if (head->x < 0 || head->x >= xNet)
-		Alive = FALSE;
-	else if (head->y < 0 || head->y >= yNet)
-		Alive = FALSE;
-
-	p = head->next;
-	//?????????????
-	for (i = 1; i < Snake.length; i++)
 	{
-		if (head->x == p->x && head->y == p->y)
-		{
-			Alive = FALSE;
-			break;
-		}
-
-		p = p->next;
+		directInherit(left);
+		coordinatesRefresh(left);
 	}
 
-	if (Alive)
-		ScoreShow(1);
+	if (foodCheck() == 1)		//检测吃到食物
+	{
+		CreateSection(-1);
+		eaten_flag = 1;
+	}
 
+	if (crashCheck() == 1)
+	{
+		Snake.alive = FALSE;
+	}
+
+	return eaten_flag;
 }
 
-
-
-//????????,????0??????????
-void keyscan()
+//键盘输入,返回0表示输入不合法
+int keyscan()
 {
 	char ch;
+	int drct = -1;
 
 	if (_kbhit())
 	{
@@ -425,61 +199,57 @@ void keyscan()
 
 		switch (ch)
 		{
-		case 72:    Drct = 0; break;   //0--????
+		case 72:    drct = UP; break;   //0--向上
 
-		case 80:    Drct = 1; break;   //1--????
+		case 80:    drct = DOWN; break;   //1--向下
 
-		case 75:    Drct = 2; break;   //2--????
+		case 75:    drct = LEFT; break;   //2--向左
 
-		case 77:    Drct = 3; break;   //3--????
+		case 77:    drct = RIGHT; break;   //3--向右
 
-		case 32:
+		case 32:		//暂停
+			EndBatchDraw();
 			Sleep(300);
-			while (_getch() != 32);
+			while (_getch() != 32);		//等待输入空格
 			Sleep(200);
+			BeginBatchDraw();
 		}
 	}
 
-
-	GameTime = clock();
-	if ((GameTime - FlashTime) >= Timeing)    //????1???????????
-	{
-		FlashTime = GameTime;
-		RefreshSnake();
-	}
+	return drct;
 }
+
 
 
 /***************************************************************/
 
+
 int main()
 {
+	int food_eaten_sign;		//标记是否吃到食物
+	int drct;
 
-	//reset all of the codes of Map_priting
+	//创建窗口
 	initWin(winWidth, Height, BLACK);
 
-	//load bar
-	cleardevice();
-	//bar_border
-	rectangle(winWidth / 2 - 53, Height / 2 - 23, winWidth / 2 + 53, Height / 2 + 23);
-	//bar
-	for (int i = 0; i < 100; i++)
-	{
-		line(winWidth / 2 - 50 + i, Height / 2 - 20, winWidth / 2 - 50 + i, Height / 2 + 20);
-		Sleep(40);
-	}
+
+	loadBar();
 
 Restart:
-	//variable init
-	Score = 0;
+	//变量, 结构体初始化
+	food_eaten_sign = 0;
+	RefreshStructure_Init(&RefreshInfo);	//初始化RefreshInfo(刷新信息)
+	SnakeStructure_Init(&Snake);
+	AnimeStructure_Init(&Anime);
 
 	Sleep(300);
 
 	//Begining Screen
+	setbkcolor(BLACK);
 	cleardevice();
-	ShowTitle();
-	Showversion();
-	ShowRules();
+	showTitle();
+	showVersion();
+	showRules();
 
 	ClickCheck(winWidth / 2 - 50, Height / 2 - 20, 100, 40, _T("Start"), WHITE);
 
@@ -494,21 +264,84 @@ Restart:
 
 	PrintMap();
 	CreateBody();
-	PrintFood();
-	FlashTime = clock();
+	NewTime = clock();
+	PreTime = NewTime;
 
 	//show score
 	outtextxy(Width + Border + (200 - textwidth(_T("score:"))) / 2, Height / 2 - 30, _T("score:"));
 	setbkmode(OPAQUE);
 	settextstyle(25, 0, _T("Consolas"));
-	ScoreShow(0);
+	ScoreShow();
 
 	FoodCreate();
 
-	while (Alive)
+	
+	timeStructure_Init();
+
+	BeginBatchDraw();
+	while (Snake.alive)
 	{
-		keyscan();
+		if ((drct = keyscan()) != -1)
+			Snake.direction = drct;
+		
+		if (Anime.isaction)
+		{
+			if (timeOffset(&Screen_Time, RefreshInfo.period.screen))
+			{
+				if (Anime.anime_freshed_number <
+					RefreshInfo.frequency)
+				{
+					PrintMap();
+					if (food_eaten_sign)
+					{
+						pixel_Compute_Print(tail->pre);
+						added_Section_Print(tail, WHITE);
+					}
+					else
+					{
+						pixel_Compute_Print(tail);
+					}
+					Anime.anime_freshed_number++;
+					PrintFood();
+				}
+				else
+				{
+					/*Anime.anime_freshed_number>=
+					RefreshInfo.frequency*/
+					PrintMap();
+					print_Verify(tail);
+					PrintFood();
+					Anime.isaction = FALSE;
+					Snake.isstatus = TRUE;
+					Anime.anime_freshed_number = 0;
+				}
+			}
+			FlushBatchDraw();
+		}
+		if(Snake.isstatus)
+		{
+			//isaction=FALSE
+			if (timeOffset(&Status_Time, RefreshInfo.period.status))
+			{
+				//如果大于状态刷新周期, 执行状态刷新动作
+				if (food_eaten_sign=RefreshSnake())
+				{
+					Snake.score += 5;
+					Period_Calculate(&RefreshInfo);
+					FoodCreate();
+				}
+				else
+				{
+					Snake.score += 1;
+				}
+				Anime.isaction = TRUE;
+				Snake.isstatus = FALSE;
+
+				ScoreShow();
+			}
+		}
 	}
+	EndBatchDraw();
 
 	if (EndScreen())
 		goto Restart;
