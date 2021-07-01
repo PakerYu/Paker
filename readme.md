@@ -34,6 +34,16 @@ by Paker
 
 
 
+### v 2. 1. 0
+
+​	**Animation Added! ! !**
+
+​	The interface changed little (maybe no change). But the snake could **move smoothly**.
+
+​	I rewrote 70% of the code, classified the code into different file. 
+
+​	It ensures 25 frames displayed between the snake walk through a grid. After testing, it proved that the snake still crawl fluently with high moving-speed, big length (As long as your PC's performance is strong enough~). 
+
 
 
 
