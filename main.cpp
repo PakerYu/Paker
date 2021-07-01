@@ -1,4 +1,16 @@
-#include <stdio.h>
+/*
+ * @Description  : 
+ * @Author       : Paker
+ * @Time         : 2021-07-01 18:00:08
+ * @LastEditTime : 2021-07-01 19:29:18
+ * @FilePath     : \Snake\Code\main.cpp
+ *     (C) Copyright 2021 Paker, China, GCU
+ *              All Rights Reserved.
+ * 
+ *                 By (Paker)
+ */
+
+
 #include <Windows.h>
 #include <stdlib.h>
 #include <time.h>
@@ -7,35 +19,35 @@
 #include <graphics.h>
 #include <TChar.h>
 
-/****************************属性定义******************************/
+/****************************???????******************************/
 
 
-#define SIZE 100    //蛇身的最大长度
-#define Border 20   //边框(单位:像素)
-#define xNet 30     //x轴格子数量(0~29)
-#define yNet 30     //y轴格子数量(0~29)
-#define gap 3       //格子之间的间隔(单位:像素)
-#define EdgeLenth 20    //网格边长(包含gap)    
+#define SIZE 100    //??????????
+#define Border 20   //???(??λ:????)
+#define xNet 30     //x?????????(0~29)
+#define yNet 30     //y?????????(0~29)
+#define gap 3       //??????????(??λ:????)
+#define EdgeLenth 20    //??????(????gap)    
 
-const int Width = xNet * EdgeLenth + 2 * Border;   //界面宽度
-const int Height = yNet * EdgeLenth + 2 * Border;  //界面高度
-const int winWidth = Width + 200;	//窗口宽度
+const int Width = xNet * EdgeLenth + 2 * Border;   //???????
+const int Height = yNet * EdgeLenth + 2 * Border;  //??????
+const int winWidth = Width + 200;	//???????
 
-int Drct = 3;         //蛇移动的方向:0,1,2,3分别代表上下左右
+int Drct = 3;         //??????????:0,1,2,3??????????????
 clock_t GameTime, FlashTime;
 long Timeing = CLOCKS_PER_SEC;
 
-boolean Alive = TRUE;       //判断是否死亡
+boolean Alive = TRUE;       //?ж????????
 int Score;
 
-//食物坐标
+//???????
 struct FoodInfo
 {
 	int x;
 	int y;
 }food;
 
-//蛇信息
+//?????
 struct snakeInfo
 {
 	int length;
@@ -44,22 +56,22 @@ struct snakeInfo
 }Snake;
 
 
-//蛇每一节的信息(用于制作链表)
+//??????????(????????????)
 struct Section
 {
-	int num;                //节的编号
-	int x;                  //节的x坐标
-	int y;                  //节的y坐标
-	int direction;          //蛇节运动方向
-	struct Section* next;   //下一节的地址
-}left;      //left储存原最后一节的内容
-			//最后一节的next链接到left
+	int num;                //?????
+	int x;                  //???x????
+	int y;                  //???y????
+	int direction;          //??????????
+	struct Section* next;   //????????
+}left;      //left????????????????
+			//???????next?????left
 
-struct Section* head;       //指向第一节
+struct Section* head;       //???????
 
-int Section_Size = sizeof(struct Section);    //Section的内存大小,用于动态链表创建 
+int Section_Size = sizeof(struct Section);    //Section??????С,?????????????? 
 
-struct Button   //按钮的信息
+struct Button   //????????
 {
 	int x;
 	int y;
@@ -73,11 +85,11 @@ struct Button   //按钮的信息
 
 
 
-/***************************函数*****************************/
+/***************************????*****************************/
 
-/***********图像函数************/
+/***********?????************/
 
-//生成按钮
+//??????
 struct Button* createBT(int x, int y, int width, int height, COLORREF color, const TCHAR* text)
 {
 	struct Button* pB = (struct Button*)malloc(sizeof(struct Button));
@@ -101,7 +113,7 @@ struct Button* createBT(int x, int y, int width, int height, COLORREF color, con
 	return pB;
 }
 
-//按钮检测点击
+//????????
 int clickBT(struct Button* bt, MOUSEMSG m)
 {
 	if (m.x > bt->x && m.x<bt->x + bt->width && m.y>bt->y && m.y < bt->y + bt->height)
@@ -122,7 +134,7 @@ void ClickCheck(int x, int y, int width, int height, const TCHAR* s, COLORREF co
 }
 
 
-//界面初始化
+//????????
 void initWin(int width, int height, COLORREF bkcolor)
 {
 	initgraph(width, height);
@@ -130,20 +142,20 @@ void initWin(int width, int height, COLORREF bkcolor)
 	cleardevice();
 }
 
-//数值转换
+//??????
 int toPixel(int Net)
 {
 	return Net * EdgeLenth + Border;
 }
 
-//打印单元函数
+//??????????
 void SecPrint(struct Section* p, COLORREF color)
 {
 	setfillcolor(color);
 	solidrectangle(toPixel(p->x) + gap, toPixel(p->y) + gap, toPixel(p->x) + Border - gap, toPixel(p->y) + Border - gap);
 }
 
-//结束界面
+//????????
 int EndScreen()
 {
 	setbkcolor(BLACK);
@@ -151,7 +163,7 @@ int EndScreen()
 	TCHAR s[35];
 	_tcscpy_s(s, 35, _T("Your Final Score Is: "));
 	TCHAR n[10];
-	_itow_s(Score, n, 10);
+	_itot(Score, n, 10);
 	n[9] = _T('\0');
 	_tcscat_s(s, 45, n);
 	setbkmode(1);
@@ -191,23 +203,23 @@ void ShowRules()
 	outtextxy((winWidth - textwidth(s2)) / 2, (Height - textheight(s2)) / 2 + 50, s2);
 }
 
-//绘制游戏边框
+//??????????
 void PrintMap()
 {
 	setfillcolor(BLACK);
 	solidrectangle(Border, Border, Width - Border, Height - Border);
 }
 
-//显示分数
+//???????
 void ScoreShow(int x)
 {
 	Score += x;
 	TCHAR s[10];
-	_itow_s(Score, s, 10);
+	_itot(Score, s, 10);
 	outtextxy(Width + Border + (200 - textwidth(s)) / 2, (Height - textheight(s)) / 2, s);
 }
 
-//生成食物
+//???????
 void FoodCreate()
 {
 	int i;
@@ -215,7 +227,7 @@ void FoodCreate()
 	struct Section* p;
 	boolean sign = TRUE;
 
-	//清空原食物
+	//???????
 	setfillcolor(BLACK);
 	solidrectangle(toPixel(food.x), toPixel(food.y), toPixel(food.x) + EdgeLenth, toPixel(food.y) + EdgeLenth);
 
@@ -244,7 +256,7 @@ void FoodCreate()
 	food.x = a;
 	food.y = b;
 
-	//这里需要打印食物
+	//?????????????
 	setfillcolor(0xCCD5F0);
 	solidcircle(toPixel(a) + EdgeLenth / 2, toPixel(b) + EdgeLenth / 2, EdgeLenth / 2 - 4);
 }
@@ -255,7 +267,7 @@ void PrintFood()
 	solidcircle(toPixel(food.x) + EdgeLenth / 2, toPixel(food.y) + EdgeLenth / 2, EdgeLenth / 2 - 2);
 }
 
-//创建蛇身
+//????????
 void CreateBody()
 {
 	struct Section* p;
@@ -265,19 +277,19 @@ void CreateBody()
 	h = (int)(yNet / 2);
 
 
-	//第一节
+	//?????
 	head = (Section*)malloc(Section_Size);
 	p = head;
 	p->num = 0; p->direction = 3; p->x = w; p->y = h;
 	SecPrint(p, WHITE);
 
-	//第二节
+	//?????
 	p->next = (Section*)malloc(Section_Size);
 	p = p->next;
 	p->num = 1; p->direction = 3; p->x = w - 1; p->y = h;
 	SecPrint(p, WHITE);
 
-	//第三节
+	//??????
 	p->next = (Section*)malloc(Section_Size);
 	p = p->next;
 	p->num = 2; p->direction = 3; p->x = w - 2; p->y = h;
@@ -287,19 +299,19 @@ void CreateBody()
 	p->next = &left;
 
 	Snake.length = 3;
-	//left节
+	//left??
 	left.x = w - 3; left.y = h;
 	left.next = NULL; left.num = Snake.length;
 
 }
 
-//蛇身成长
+//???????
 void GrowUp()
 {
 	struct Section* p;
 	p = head;
 
-	//此时p指向蛇的尾节
+	//???p??????β??
 	do
 	{
 		p = p->next;
@@ -314,23 +326,23 @@ void GrowUp()
 	left.num = Snake.length;
 
 	int count;
-	//蛇速度改变
+	//???????
 	count = (Snake.length - 3);
 	Timeing = (long)(CLOCKS_PER_SEC / ((-pow(exp(1.0), -count / 14.0) + 1) * 2.5 + 1.25));
 }
 
-//刷新蛇的状态
+//????????
 void RefreshSnake()
 {
 	int i, dir, t;
 	boolean flag = FALSE;
-	static boolean sign = FALSE;       //sign记录食物被吃时left是否被处理
+	static boolean sign = FALSE;       //sign?????????left??????
 
 	struct Section* p;
 	p = head;
 	dir = Drct;
 
-	for (i = 0; i <= Snake.length; i++)    //i=length时p指向的是left
+	for (i = 0; i <= Snake.length; i++)    //i=length?p??????left
 	{
 		if (p->num == Snake.length && sign)
 		{
@@ -340,9 +352,9 @@ void RefreshSnake()
 
 		t = p->direction;
 		p->direction = dir;
-		dir = t;                      //dir表示原该点储存的方向
+		dir = t;                      //dir?????????????
 
-		//此处直接更新每个节的坐标  
+		//???????????????????  
 		switch (p->direction)
 		{
 		case 0: p->y -= 1; break;
@@ -358,13 +370,13 @@ void RefreshSnake()
 			p = p->next;
 	}
 
-	//检测头部是否吃到食物
+	//??????????????
 	if (head->x == food.x && head->y == food.y)
 	{
 		sign = TRUE;
 		flag = TRUE;
 
-		//蛇身成长
+		//???????
 		GrowUp();
 		FoodCreate();
 		ScoreShow(10);
@@ -376,14 +388,14 @@ void RefreshSnake()
 	else
 		flag = FALSE;
 
-	//检测是否撞墙
+	//????????
 	if (head->x < 0 || head->x >= xNet)
 		Alive = FALSE;
 	else if (head->y < 0 || head->y >= yNet)
 		Alive = FALSE;
 
 	p = head->next;
-	//检测是否撞到自身
+	//?????????????
 	for (i = 1; i < Snake.length; i++)
 	{
 		if (head->x == p->x && head->y == p->y)
@@ -402,7 +414,7 @@ void RefreshSnake()
 
 
 
-//键盘输入,返回0表示输入不合法
+//????????,????0??????????
 void keyscan()
 {
 	char ch;
@@ -413,13 +425,13 @@ void keyscan()
 
 		switch (ch)
 		{
-		case 72:    Drct = 0; break;   //0--向上
+		case 72:    Drct = 0; break;   //0--????
 
-		case 80:    Drct = 1; break;   //1--向下
+		case 80:    Drct = 1; break;   //1--????
 
-		case 75:    Drct = 2; break;   //2--向左
+		case 75:    Drct = 2; break;   //2--????
 
-		case 77:    Drct = 3; break;   //3--向右
+		case 77:    Drct = 3; break;   //3--????
 
 		case 32:
 			Sleep(300);
@@ -430,7 +442,7 @@ void keyscan()
 
 
 	GameTime = clock();
-	if ((GameTime - FlashTime) >= Timeing)    //计数1秒后刷新蛇的状态
+	if ((GameTime - FlashTime) >= Timeing)    //????1???????????
 	{
 		FlashTime = GameTime;
 		RefreshSnake();
