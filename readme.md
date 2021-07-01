@@ -1,14 +1,16 @@
 # Snake
 
-## by Paker
+by Paker
 
 
+## Explain
 
 *This is a small game, which I used to practice my programming level.*
 
 **Writed by C Language.**
 
 
+## Version
 
 ### v 1.0.0
 
