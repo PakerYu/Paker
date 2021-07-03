@@ -1,4 +1,4 @@
-#include "Snake2_1_0.h"
+#include "Snake.h"
 
 clock_t NewTime, PreTime;
 clock_t ANTime, AFTime;
