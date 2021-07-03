@@ -46,5 +46,13 @@ by Paker
 
 
 
+### v 2. 1. 1
+
+​	**Add the function of cache clearing.**
+
+​	When I try the application, I find it has a bug: I forgot to free the Sections space in memory when players choose to Restart, so after gaming many times, many useless data will floating in memory…
+
+
+
 
 
