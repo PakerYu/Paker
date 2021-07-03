@@ -77,7 +77,7 @@ void showTitle()
 //????��
 void showVersion()
 {
-	const TCHAR* s = _T("v2.1.0");
+	const TCHAR* s = _T("v2.1.1");
 	settextcolor(WHITE);
 	settextstyle(20, 0, _T("Consolas"));
 	outtextxy((winWidth - textwidth(s)) / 2, 120, s);
@@ -105,7 +105,7 @@ void loadBar()
 	for (int i = 0; i < 100; i++)
 	{
 		line(winWidth / 2 - 50 + i, Height / 2 - 20, winWidth / 2 - 50 + i, Height / 2 + 20);
-		Sleep(40);
+		Sleep(20);
 	}
 }
 

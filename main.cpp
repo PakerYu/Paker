@@ -219,7 +219,33 @@ int keyscan()
 	return drct;
 }
 
+/**
+ * @Description  : 清除 链表, 程序结尾处
+ * @Author       : Paker
+ * @Time         : 2021-07-03 14:16:50
+ * 
+ * @param         {*}
+ * @return        {*}
+ */
+void Clear_Data()
+{
+    struct Section *section_p=tail;
 
+    // 释放left的空间
+    free(left);
+
+    do
+    {
+        PreSection(tail);
+        free(tail->next);
+    } while (head != tail);
+
+    free(tail);
+
+    tail = NULL;
+    head = NULL;
+    left = NULL;
+}
 
 /***************************************************************/
 
@@ -344,7 +370,16 @@ Restart:
 	EndBatchDraw();
 
 	if (EndScreen())
-		goto Restart;
+    {
+        setbkcolor(BLACK);
+        cleardevice();
+        settextcolor(WHITE);
+        settextstyle(25, 0, _T("Consolas"));
+        outtextxy((winWidth - textwidth(_T("Loading..."))) / 2, (Height-textheight(_T("Loading...")))/2, _T("Loading..."));
+        Clear_Data();   //清除链表缓存
+        Sleep(2000);
+        goto Restart;
+    }
 
 	return 0;
 }
